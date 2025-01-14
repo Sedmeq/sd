@@ -1,12 +1,31 @@
 2.1.     Bütün işçilərin adlarını(first_name) və soyadlarını(last_name) seçin:
+SELECT first_name, last_name 
+FROM employees;
+
 
 2.2.    İşçilərdən maaşı(salary) 10000-dən çox olanların e-poçt(email) ünvanlarını seçin:
+SELECT email 
+FROM employees 
+WHERE salary > 10000;
+
 
 2.3.   Maaşı(salary) 5000 və 10000 arasında olan və ya meneceri(manager_id) 101 nömrəli olan işçiləri tapın:
+SELECT * 
+FROM employees 
+WHERE (salary BETWEEN 5000 AND 10000) OR manager_id = 101;
+
 
 2.4.    Adında (first_name) 'a' hərfi olan və ya soyadında (last_name) 'e' hərfi olan işçiləri tapın:
+SELECT * 
+FROM employees 
+WHERE first_name LIKE '%a%' OR last_name LIKE '%e%';
+
 
 2.5.    Vəzifəsi (job_id) 'IT_PROG' olan və maaşı (salary) 6000-dən çox olan işçiləri tapın:
+SELECT * 
+FROM employees 
+WHERE job_id = 'IT_PROG' AND salary > 6000;
+
 
 2.6.    Adında (first_name)  'e' hərfi olan işçiləri tapın
 
