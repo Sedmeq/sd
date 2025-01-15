@@ -91,3 +91,40 @@ VALUES
 UPDATE employees 
 SET salary = salary + 200 
 WHERE job_id = 'IT_PROG';
+
+1.1. Map funksiyası ilə string əməliyyatları:
+Verilmiş listdəki bütün sözləri böyük hərflərlə çap edən funksiya:
+def words_to_uppercase(words):
+    return list(map(str.upper, words))
+words = ["salam", "dünya", "python", "kod"]
+print(words_to_uppercase(words))
+
+1.2. List Comprehensions ilə ədədlərin qüvvətə yüksəldilməsi:
+Verilmiş listdəki bütün ədədləri öz qüvvətinə yüksəldən funksiya:
+
+def power_numbers(nums):
+    return [num ** num for num in nums]
+numbers = [2, 3, 4]
+print(power_numbers(numbers))
+
+1.3. Map və filter ilə ədədlərin seçilməsi:
+Bir listdəki cüt ədədləri seçin və onların kvadratını hesablayın:
+
+def square_even_numbers(nums):
+    return list(map(lambda x: x ** 2, filter(lambda x: x % 2 == 0, nums)))
+numbers = [1, 2, 3, 4, 5, 6]
+print(square_even_numbers(numbers))
+
+1.4. Lambda funksiyaları:
+İki ədədin cəmini hesablayan və çap edən lambda funksiyası:
+
+sum_two_numbers = lambda x, y: x + y
+print(sum_two_numbers(5, 7))
+
+1.5. Filter və lambda ilə ədədlərin seçilməsi:
+Verilmiş bir listdəki müsbət ədədləri seçən və nəticəni yeni bir listə yığan kod:
+
+def filter_positive_numbers(nums):
+    return list(filter(lambda x: x > 0, nums))
+numbers = [-3, 5, -1, 0, 9, -8]
+print(filter_positive_numbers(numbers))
