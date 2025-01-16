@@ -1,1 +1,17 @@
-okodwcowxokwemxwkejcnwemok
+1. py -m pip install Django (yazaraq Django yukluyuruk)
+2. django-admin --version (yazaraq djangonun versiyasini gore bilersiz eger cixirsa ugurlu yukleme olub)
+3. django-admin startproject myApp (yeni bir proyekt yaradiriq)
+4. cd myApp (Daxil oluruq)
+5. py manage.py runserver(yaziriq ve http://127.0.0.1:8000/ daxil oluruq)
+6. Ve artik hazirdir raket qabagimiza cixir
+
+
+
+Blogpostproject uzerinde islemek
+1. cd Blogpostproject (daxil oluruq ve ya adi nedirse onu yazaraq)
+2. python -m venv env (Virtual mühit yaratmaq üçün yaziriq)
+3. env\Scripts\activate (Sonra mühiti aktivləşdiririk)
+4. pip install -r requirements.txt (layihedeki kitabxanalari yukleyirik)
+5. python manage.py migrate (Bunu yazanda uzun bir error vere biler bu zaman pip install --upgrade django ve ya pip install django yazdiqdan sonra bu kodu tekrar yaziriq)
+6. python manage.py createsuperuser (bir superuser yaradiriq)
+7. python manage.py runserver (serveri ise saliriq ve http://127.0.0.1:8000/ daxil ola bilerik)
