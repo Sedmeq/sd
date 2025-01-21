@@ -81,8 +81,9 @@ FROM employees;
 
 
 2.15.           5 yeni bir işçi əlavə edin:
-INSERT INTO employees (employee_id, first_name, last_name, email,phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id) 
-VALUES 
+INSERT INTO employees(employee_id, first_name , last_name, email, phone_number, hire_date, job_id, salary , commission_pct, manager_id, department_id)
+VALUES
+(320,'sd','md','seid@murena.io', '010.717.32.00',2006-01-26,'IT_PROG',9000,0,101,60)
 (319, 'Ali', 'Veliyev', 'ali.veliyev@example.com','515.123.8182','2025-01-01', 'IT_PROG', 6000,0, 103, 50),
 (318, 'Aysel', 'Mammadova', 'aysel.mammadova@example.com','515.321.7128','2025-01-01', 'HR_REP', 4500,0, 101, 60);
 
