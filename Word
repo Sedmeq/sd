@@ -1,0 +1,246 @@
+Proqramlasdirma
+3.1 Qeyd olunan github hesabindan (https://github.com/SavFreire/Blogpostproject1) Blogpostproject1 django proyektini yükləyin və layihəni lokal serverdə qaldırın
+
+1. cd Blogpostproject (daxil oluruq ve ya adi nedirse onu yazaraq)
+2. python -m venv env (Virtual mühit yaratmaq üçün yaziriq)
+3. env\Scripts\activate (Sonra mühiti aktivləşdiririk)
+4. pip install -r requirements.txt (layihedeki kitabxanalari yukleyirik)(3 ve 4un qarşısını sil)
+5. python manage.py migrate (Bunu yazanda uzun bir error vere biler bu zaman pip install --upgrade django ve ya pip install django yazdiqdan sonra bu kodu tekrar yaziriq)
+6. python manage.py createsuperuser (bir superuser yaradiriq)
+7. python manage.py runserver (serveri ise saliriq ve http://127.0.0.1:8000/ daxil ola bilerik)
+
+3.2 Yeni "Kitablar " adlı menu əlavə edib "About" menyusundan əvvəldə yerləşdirin
+1.navbar.html
+        <a href="{% url 'books' %}" class="mr-5 hover:text-gray-900 rounded-lg hover:bg-pink-200 inline-flex items-center">
+          Kitablar
+        </a>
+2.urls.py
+from posts.views import books,
+urlpatterns = [
+    path('books/', books, name='books'),
+]
+3.views.py 
+def books(request):
+    books = Book.objects.all()
+    return render(request, 'books.html', {'books': books})
+
+4.templates – books.html yaradiriq
+{% extends 'base.html' %}
+{% block content %}
+    <h1>Kitablar Siyahısı</h1>
+    <table>
+        <tr>
+            <th>Kitab Adı</th>
+            <th>Müəllif</th>
+            <th>Nəşr Tarixi</th>
+        </tr>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>{{ book.published_date|date:"d/m/Y"  }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+{% endblock content %}
+
+5.models.py
+class Book(models.Model):
+    title = models.CharField(max_length=200)
+    author = models.CharField(max_length=100)
+    published_date = models.DateTimeField
+
+    def __str__(self):
+        return self.title
+6. admin.py
+from .models import Book,
+admin.site.register(Book)
+
+3.3 "kitablar" modeli yaradın və django admin paneldən 5 kitab əlavə edin
+Models.py yuxarıda yaradılıb (admin panele girib Books da 5 kitab elave edirik)
+
+3.4 "About" səhifəsində özünüzə aid məumatları yerləşdirin. (Ad, soyad, doğum tarixi, Bitirdiyiniz məktəb, hal hazırda təhsil aldığınız ixtisas, qrup və s)
+{% extends 'base.html' %}
+{% block content %}
+
+<h1>Haqqımda</h1>
+<p>Ad: [Sd]</p>
+<p>Soyad: [Sizin soyadınız]</p>
+<p>Doğum tarixi: [Gün/Ay/İl]</p>
+<p>Bitirdiyiniz məktəb: [Məktəb adı]</p>
+<p>Təhsil aldığınız ixtisas: [İxtisas adı]</p>
+<p>Qrup: [Qrup adı]</p>
+
+{% endblock content %}
+
+3.5  Hər bir  "post" üçün "comment" əlavə oluna bilməsini təmin edin
+Posts icerisinde forms.py yarat
+# forms.py
+from django import forms
+from .models import Comment
+
+class CommentForm(forms.ModelForm):
+    class Meta:
+        model = Comment
+        fields = ['name', 'text']  # We want both name and text
+
+Views.py post içini deyiş
+def post(request, slug):
+    post_obj = get_object_or_404(Post, slug=slug)
+    # Get existing comments for display
+    comments = post_obj.comments.all().order_by('-created_at')
+
+    if request.method == 'POST':
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            # Create a comment but don't save to DB yet
+            new_comment = form.save(commit=False)
+            # Associate the comment with the current post
+            new_comment.post = post_obj
+            new_comment.save()
+            # Redirect to the same page after saving
+            return redirect('post', slug=slug)
+    else:
+        form = CommentForm()
+
+    context = {
+        'post': post_obj,
+        'comments': comments,
+        'form': form
+    }
+    return render(request, 'post.html',context)
+
+models.py
+class Comment(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
+    name = models.CharField(max_length=100)  # The commenter’s name
+    text = models.TextField()                # The comment content
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def _str_(self):
+        return f"{self.post.title} ------ {self.name}" 
+
+post.html
+2ci hr classdan sonra bunu yaziriq
+
+        <h2>Comments ({{ comments.count }})</h2>
+        {% for comment in comments %}
+          <div style="border:1px solid #ccc; margin-bottom:1em; padding:1em;">
+            <p><strong>{{ comment.name }}</strong> says:</p>
+            <p>{{ comment.text }}</p>
+            <small class="text-gray-500">{{ comment.created_at|date:"F j, Y, g:i a" }}</small>
+          </div>
+        {% empty %}
+          <p>No comments yet. Be the first!</p>
+        {% endfor %}
+        
+        <hr />
+        
+        <h3>Leave a comment</h3>
+        <form method="post">
+          {% csrf_token %}
+          {{ form.as_p }}
+          <button type="submit">Submit</button>
+        </form>
+
+Admin.py 
+from .models import Comment
+admin.site.register(Comment)
+
+
+3.6 "Tag" əlavə etmə və "tag" üzrə axtarış sistemini qurun.
+Views.py
+
+def tag_list(request):
+    query = request.GET.get('q' , '').strip()
+
+    if query:
+        tags = Tag.objects.filter(name__icontains=query)
+    else:
+        tags = Tag.objects.all()
+
+    return render(request , 'tag_list.html' , {'tag':tags , 'query':query})
+
+urls.py 
+from posts.views import tag_list
+    path("tag/", tag_list, name="tag_list")
+
+admin.py
+from .models import Tag
+@admin.register(Tag)
+class TagAdmin(admin.ModelAdmin) :
+    list_display = ('id' , 'name' , 'created_at')
+
+templates tag_search.html yaradiriq
+search_bar daki kod kopyala yapisdir yuxarida base.html tag_html ile evez et
+
+
+
+
+3.7  Öz adınıza uyğun admin istifadəçisi yaradın(məs: eli):
+python manage.py createsuperuser
+
+3.8  Tag modelinin yaradılması və migrasiya:
+Tag modelini, id, name və created_at sutunları ilə təyin edin.
+class Tag(models.Model):
+name = models.CharField(max_length=100, unique=True)
+id = models.AutoField(primary_key=True)
+ created_at = models.DateTimeField(auto_now_add=True)
+
+def __str__(self):
+return self.name
+
+3.9 Django adminə Tag modelini əlavə etmək:
+from .models import Tag
+admin.site.register(Tag)
+       <a href="{% url 'tag' %}" class="mr-5 hover:text-gray-900 rounded-lg hover:bg-pink-200 inline-flex items-center">
+          Tags
+        </a>                                     (navbar.html elave edirik)
+3.10 Tags Səhifəsinin Yaradılması:
+views.py içərisində Tag siyahısını göstərəcək bir görünüş funksiyası yazın.
+def tag(request):
+    tag_siyahisi = Tag.objects.all()
+    return render(request, 'tags_list.html', {'tag': tag_siyahisi})
+
+urls.py içərisində bu görünüşə uyğun bir URL konfiqurasiyası yaradın.
+from posts.views import tag
+    path('tag/', tag, name='tag')
+tag_list.html adında bir şablon faylı yaradın və Tag obyektlərini bu şablonda siyahılayın.(Qeyd:  Yeni template )
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="card mb-3" style="max-width: 540px;">
+    <div class="row g-0">
+        <form method="GET" action="{% url 'tag_list' %}">
+            <input type="text" name="q" placeholder="Tag axtar..." />
+            <button type="submit">🔍</button>
+        </form>
+        {% for i in tag %}
+
+      <div class="col-md-4">
+        
+      </div>
+      <div class="col-md-8">
+
+        <div class="card-body">
+            {{i.id}}
+            <h5 class="card-title">{{i.name}}</h5>
+
+          <p class="card-text"><small class="text-body-secondary">Last Update {{i.created_at}}</small></p>
+
+          
+          
+        </div>
+      </div>
+    </div>
+  </div>
+{% endfor %}
+
+{% endblock %
+
+
+3.11 Ana səhifədəki "My blog" ifadəsini öz adınızla (məsələn, "Eli Hüseynov Blogu") əvəz edin.\
+Homepage.html ve navbar.html deyis
+3.12 Post görüntüləmə səhifəsində, post başlığının rəngini  qırmızıya dəyişdirin.
+Homepage.html posts pink-red et
